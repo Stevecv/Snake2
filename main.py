@@ -57,7 +57,6 @@ while running:
     refresh_screen()
     draw_apple(apple[0], apple[1])
     draw_snake(snake)
-    extend = True
 
     if snake[0][0] == apple[0] and snake[0][1] == apple[1]:
         apple_count += 1
@@ -72,11 +71,8 @@ while running:
     if time.time() - last_snake_move > 0.35:
         for snake_piece in range(len(snake)):
             if snake_dir == "r":
-                print(snake_piece)
-                snake[snake_piece] = (snake[snake_piece][0] + 1, snake[snake_piece][1])
-                if extend:
-                    snake.append((snake[snake_piece][0], snake[snake_piece][1]))
-                    extend = False
+
+                snake[snake_piece-1] = (snake[snake_piece-1][0] + 1, snake[snake_piece-1][1])
                 last_snake_move = time.time()
 
 
