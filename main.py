@@ -80,6 +80,10 @@ while running:
     draw_apple(apple[0], apple[1])
     draw_snake(snake_length, snake_locations)
 
+    font = pygame.font.Font(None, 40)
+    text = font.render(str(apple_count), True, (255,255,255))
+    screen.blit(text, (10,10))
+
     if playing:
         if snake_head[0] == apple[0] and snake_head[1] == apple[1]:
             apple_count += 1
@@ -89,7 +93,7 @@ while running:
         pygame.display.flip()
 
         # Move snake
-        if time.time() - last_snake_move > 0.25:
+        if time.time() - last_snake_move > 0.15:
             if snake_dir == "r":
                 snake_head = (snake_head[0] + 1, snake_head[1])
                 last_snake_move = time.time()
