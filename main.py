@@ -3,13 +3,15 @@ import random
 import pygame
 import time
 
+challenge_mode = True
+
 # Define the background colour
 # using RGB color coding.
 background_colour = (0, 0, 0)
 
 pygame.init()
-width = 500
-height = 500
+width = 501
+height = 501
 screen = pygame.display.set_mode((width, height))
 
 # Set the caption of the screen
@@ -26,6 +28,22 @@ running = True
 grid_cols = 17
 grid_rows = 17
 
+wall_locations = []
+def generate_apple():
+    apple_loc = (random.randint(0, grid_cols - 1), random.randint(0, grid_rows - 1))
+    if apple_loc in snake_locations or apple_loc in wall_locations:
+        return generate_apple()
+    return apple_loc
+
+
+def generate_wall():
+    wall_loc = (random.randint(0, grid_cols - 1), random.randint(0, grid_rows - 1))
+    if wall_loc in snake_locations or wall_loc in wall_locations:
+        return generate_wall()
+    wall_locations.append(wall_loc)
+    return wall_loc
+
+
 def refresh_screen():
     screen.fill(background_colour)
 
@@ -41,6 +59,11 @@ def draw_tile(tile_x, tile_y, color):
 
 def draw_apple(apple_x, apple_y):
     draw_tile(apple_x, apple_y, (255, 0, 0))
+
+
+def draw_walls(wall_locs):
+    for location in wall_locs:
+        draw_tile(location[0], location[1], (225, 225, 225))
 
 
 def draw_snake(length, locations):
@@ -72,6 +95,7 @@ snake_length = 1
 snake_dir = "r"
 apple_count = 0
 extend = False
+move_queue = []
 
 last_snake_move = time.time()
 # game loop
@@ -79,6 +103,7 @@ while running:
     refresh_screen()
     draw_apple(apple[0], apple[1])
     draw_snake(snake_length, snake_locations)
+    draw_walls(wall_locations)
 
     font = pygame.font.Font(None, 40)
     text = font.render(str(apple_count), True, (255,255,255))
@@ -88,12 +113,18 @@ while running:
         if snake_head[0] == apple[0] and snake_head[1] == apple[1]:
             apple_count += 1
             snake_length += 1
-            apple = (random.randint(0, grid_cols - 1), random.randint(0, grid_rows - 1))
+            apple = generate_apple()
+
+            if challenge_mode:
+                generate_wall()
 
         pygame.display.flip()
 
         # Move snake
         if time.time() - last_snake_move > 0.15:
+            if len(move_queue) > 0:
+                snake_dir = move_queue.pop(0)
+
             if snake_dir == "r":
                 snake_head = (snake_head[0] + 1, snake_head[1])
                 last_snake_move = time.time()
@@ -118,6 +149,8 @@ while running:
                 game_over()
 
 
+
+
     # for loop through the event queue
     for event in pygame.event.get():
         # Check for QUIT event
@@ -126,10 +159,10 @@ while running:
 
         if event.type == pygame.KEYDOWN:
             if (event.key == pygame.K_RIGHT or event.key == pygame.K_d) and snake_dir != "l":
-                snake_dir = "r"
+                move_queue.append("r")
             if (event.key == pygame.K_LEFT or event.key == pygame.K_a) and snake_dir != "r":
-                snake_dir = "l"
+                move_queue.append("l")
             if (event.key == pygame.K_UP or event.key == pygame.K_w) and snake_dir != "d":
-                snake_dir = "u"
+                move_queue.append("u")
             if (event.key == pygame.K_DOWN or event.key == pygame.K_s) and snake_dir != "u":
-                snake_dir = "d"
+                move_queue.append("d")
