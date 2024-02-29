@@ -3,15 +3,15 @@ import random
 import pygame
 import time
 
-challenge_mode = True
+challenge_mode = False
 
 # Define the background colour
 # using RGB color coding.
 background_colour = (0, 0, 0)
 
 pygame.init()
-width = 501
-height = 501
+width = 1000
+height = 1000
 screen = pygame.display.set_mode((width, height))
 
 # Set the caption of the screen
@@ -25,6 +25,8 @@ running = True
 
 
 # Game
+#grid_cols = 17
+#grid_rows = 17
 grid_cols = 17
 grid_rows = 17
 
@@ -88,6 +90,20 @@ def game_over():
     pygame.display.update()
     playing = False
 
+def pause_screen():
+    global playing
+    game_over_screen_fade = pygame.Surface((width, height))
+    game_over_screen_fade.fill((0, 0, 0))
+    game_over_screen_fade.set_alpha(160)
+    screen.blit(game_over_screen_fade, (0, 0))
+
+    font = pygame.font.Font(None, 75)
+    text = font.render("PAUSED", True, (255,255,255))
+    text_rect = text.get_rect(center=(width/2, height/2))
+    screen.blit(text, text_rect)
+    pygame.display.update()
+
+
 apple = (13, 8)
 snake_head = (4,8)
 snake_locations = [(4, 8)]
@@ -145,6 +161,9 @@ while running:
             if snake_head in snake_locations[0:snake_length-1] and snake_length > 1:
                 game_over()
 
+            if snake_head in wall_locations:
+                game_over()
+
             if snake_head[0] < 0 or snake_head[0] > grid_cols or snake_head[1] < 0 or snake_head[1] > grid_rows:
                 game_over()
 
@@ -166,3 +185,8 @@ while running:
                 move_queue.append("u")
             if (event.key == pygame.K_DOWN or event.key == pygame.K_s) and snake_dir != "u":
                 move_queue.append("d")
+
+            if event.key == pygame.K_ESCAPE:
+                playing = not playing
+                if not playing:
+                    pause_screen()
